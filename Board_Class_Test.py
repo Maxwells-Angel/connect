@@ -53,7 +53,7 @@ class Board:
         elif self.switch == -1:
             return "Player 2", "o", -1
 
-    # Returns all legal moves 
+    # Returns a list of all legal moves, in column order
     def show_legal_moves(self):
         legalMoves = [] 
         for i in self.rangecolumns:
@@ -86,402 +86,56 @@ class Board:
         if legal:
             self.board[move] = self.checkTurn()[1]
             self.record(move)
-            
-            # switch turns
-            self.switchTurns()
 
         else:
             print("Column:",column," was specified. This move is not legal!")
             return False
 
-    #Returns false if the game has been won 
-    def noWins(self):
+    # should return false if the game has been won 
+    # should tell you who won
+    def checkWins(self):
+        
+        # look at the history, what was the last move played 
+        last = self.history[-1][2]
+        last_column,last_row = last[0],last[1]
+        
+        # who played the last move 
+        marker = self.history[-1][1]
+
+        # assume there is no win so far
         noWin = True
-        rangerows = range(1,7)
-        rangecolumns = range(1,8)
-        columns = [1,2,3,4,5,6,7]
-        rows = [1,2,3,4,5,6]
-    
-        #Check Horizontal wins
-        for i in rows: 
-            #for player 1 
-            if self.board[(1, i)] == 'x':
-                if self.board[(2,i)] == 'x':
-                    if self.board[(3,i)] == 'x':
-                        if self.board[(4,i)] == 'x':
-                            print("Player 1 won! HORIZONTAL")
-                            noWin = False
-                            return False 
-            if self.board[(2,i)] == 'x':
-                if self.board[(3,i)] == 'x':
-                    if self.board[(4,i)] == 'x':
-                        if self.board[(5, i)] == 'x':
-                            print("Player 1 won! HORIZONTAL")
-                            noWin = False
-                            return False 
-            if self.board[(3,i)] == 'x':
-                if self.board[(4,i)] == 'x':
-                    if self.board[(5,i)] == 'x':
-                        if self.board[(6, i)] == 'x':
-                            print("Player 1 won! HORIZONTAL")
-                            noWin = False
-                            return False  
-            if self.board[(4,i)] == 'x':
-                if self.board[(5, i)] == 'x':
-                    if self.board[(6,i)] == 'x':
-                        if self.board[(7, i)] == 'x':
-                            print("Player 1 won! HORIZONTAL")
-                            noWin = False
-                            return False
-            #for player 2 
-            if self.board[(1, i)] == 'o':
-                if self.board[(2,i)] == 'o':
-                    if self.board[(3,i)] == 'o':
-                        if self.board[(4,i)] == 'o':
-                            print("Player 2 won! HORIZONTAL")
-                            noWin = False
-                            return False 
-            if self.board[(2,i)] == 'o':
-                if self.board[(3,i)] == 'o':
-                    if self.board[(4,i)] == 'o':
-                        if self.board[(5, i)] == 'o':
-                            print("Player 2 won! HORIZONTAL")
-                            noWin = False
-                            return False 
-            if self.board[(3,i)] == 'o':
-                if self.board[(4,i)] == 'o':
-                    if self.board[(5,i)] == 'o':
-                        if self.board[(6, i)] == 'o':
-                            print("Player 2 won! HORIZONTAL")
-                            noWin = False
-                            return False  
-            if self.board[(4,i)] == 'o':
-                if self.board[(5, i)] == 'o':
-                    if self.board[(6,i)] == 'o':
-                        if self.board[(7, i)] == 'o':
-                            print("Player 2 won! HORIZONTAL")
-                            noWin = False
-                            return  False
 
-        # Next check for a vertical win 
-        for placer in columns: 
-            #player 1
-            if self.board[(placer, 1)] == 'x':
-                if self.board[(placer, 2)] =='x':
-                    if self.board[(placer, 3)] =='x': 
-                        if self.board[(placer, 4)] =='x':
-                            print("Player 1 won! VERTICAL")
-                            noWin = False
-                            return False 
-            if self.board[(placer, 2)] == 'x':
-                if self.board[(placer, 3)] =='x':
-                    if self.board[(placer, 4)] =='x': 
-                        if self.board[(placer, 5)] =='x':
-                            print("Player 1 won! VERTICAL")
-                            noWin = False
-                            return False 
-            if self.board[(placer, 3)] == 'x':
-                if self.board[(placer, 4)] =='x':
-                    if self.board[(placer, 5)] =='x': 
-                        if self.board[(placer, 6)] =='x':
-                            print("Player 1 won! VERTICAL")
-                            noWin = False
-                            return False 
-            #player 2 
-            if self.board[(placer, 1)] == 'o':
-                if self.board[(placer, 2)] =='o':
-                    if self.board[(placer, 3)] =='o': 
-                        if self.board[(placer, 4)] =='o':
-                            print("Player 2 won! VERTICAL")
-                            noWin = False
-                            return False 
-            if self.board[(placer, 2)] == 'o':
-                if self.board[(placer, 3)] =='o':
-                    if self.board[(placer, 4)] =='o': 
-                        if self.board[(placer, 5)] =='o':
-                            print("Player 2 won! VERTICAL")
-                            noWin = False
-                            return False 
-            if self.board[(placer, 3)] == 'o':
-                if self.board[(placer, 4)] =='o':
-                    if self.board[(placer, 5)] =='o': 
-                        if self.board[(placer, 6)] =='o':
-                            print("Player 2 won! VERTICAL")
-                            noWin = False
-                            return False 
-        #Last, check for diagonal wins   
-        for y in rangerows: 
-            for x in rangecolumns:
-            #player 1 
-                #check up and right 
-                if y <=3 and x<= 4:
-                    if self.board[(x,y)] == 'x':
-                        if self.board[(x+1,y+1)] == 'x':
-                            if self.board[(x+2,y+2)] == 'x':
-                                if self.board[(x+3,y+3)] == 'x':
-                                    print("Player 1 won! UP and RIGHT")
-                                    noWin = False
-                                    return False
-                #check up and left
-                if y <=3 and x>= 4:
-                    if self.board[(x,y)] == 'x':
-                        if self.board[(x-1,y+1)] == 'x':
-                            if self.board[(x-2,y+2)] == 'x':
-                                if self.board[(x-3,y+3)] == 'x':
-                                    print("Player 1 won! UP and LEFT")
-                                    noWin = False
-                                    return False
-                #check down and left
-                if y >=4 and x>= 4:
-                    if self.board[(x,y)] == 'x':
-                        if self.board[(x-1,y-1)] == 'x':
-                            if self.board[(x-2,y-2)] == 'x':
-                                if self.board[(x-3,y-3)] == 'x':
-                                    print("Player 1 won! DOWN and LEFT")
-                                    noWin = False
-                                    return False
-                #check down and right
-                if y >=4 and x<= 4:
-                    if self.board[(x,y)] == 'x':
-                        if self.board[(x+1,y-1)] == 'x':
-                            if self.board[(x+2,y-2)] == 'x':
-                                if self.board[(x+3,y-3)] == 'x':
-                                    print("Player 1 won! DOWN and RIGHT")
-                                    noWin = False
-                                    return False
-            #player 2 
-                #check up and right 
-                if y <=3 and x<= 4:
-                    if self.board[(x,y)] == 'o':
-                        if self.board[(x+1,y+1)] == 'o':
-                            if self.board[(x+2,y+2)] == 'o':
-                                if self.board[(x+3,y+3)] == 'o':
-                                    print("Player 2 won! UP and RIGHT!")
-                                    noWin = False
-                                    return False
-                #check up and left
-                if y <=3 and x>= 4:
-                    if self.board[(x,y)] == 'o':
-                        if self.board[(x-1,y+1)] == 'o':
-                            if self.board[(x-2,y+2)] == 'o':
-                                if self.board[(x-3,y+3)] == 'o':
-                                    print("Player 2 won! UP and LEFT")
-                                    noWin = False
-                                    return False
-                #check down and left
-                if y >=4 and x>= 4:
-                    if self.board[(x,y)] == 'o':
-                        if self.board[(x-1,y-1)] == 'o':
-                            if self.board[(x-2,y-2)] == 'o':
-                                if self.board[(x-3,y-3)] == 'o':
-                                    print("Player 2 won! DOWN and LEFT")
-                                    noWin = False
-                                    return False
-                #check down and right
-                if y >=4 and x<= 4:
-                    if self.board[(x,y)] == 'o':
-                        if self.board[(x+1,y-1)] == 'o':
-                            if self.board[(x+2,y-2)] == 'o':
-                                if self.board[(x+3,y-3)] == 'o':
-                                    print("Player 2 won! DOWN and RIGHT")
-                                    noWin = False
-                                    return False
-        if noWin == True:
-            return True     
+        # check for a horizontal win
+        h_connect = 0
+        for i in self.rangecolumns:
+            if self.board[(i,last_row)]== marker:
+                    h_connect+=1
+            else: 
+                    h_connect = 0
+
+        if h_connect>=4:
+            noWin = False
+
+        v_connect = 0
+        for j in self.rangerows:
+            if self.board[(last_column,j)]== marker:
+                    v_connect+=1
+            else: 
+                    v_connect = 0
+
+        if v_connect>=4:
+            noWin = False
+
+        # check for a diagonal win
+        
+        # do something if you detect a win
+        if noWin == False:
+            winner = self.history[-1][0]
+            print("\n")
+            print(winner," won, Game over!")
+            print("\n")
+            time.sleep(4)
             
-    #This function checks to see if the game has been won and returns values 
-    def checkWins2(self):
-        rangerows = range(1,7)
-        rangecolumns = range(1,8)
-        columns = [1,2,3,4,5,6,7]
-        rows = [1,2,3,4,5,6]
-        Win = False
-        #Check Horizontal wins
-        for i in rows: 
-            #for player 1 
-            if self.board[(1, i)] == 'x':
-                if self.board[(2,i)] == 'x':
-                    if self.board[(3,i)] == 'x':
-                        if self.board[(4,i)] == 'x':
-                            #print("Player 1 won! HORIZONTAL")
-                            Win  = True
-                            return 1 
-            if self.board[(2,i)] == 'x':
-                if self.board[(3,i)] == 'x':
-                    if self.board[(4,i)] == 'x':
-                        if self.board[(5, i)] == 'x':
-                            #print("Player 1 won! HORIZONTAL")
-                            Win  = True
-                            return 1
-            if self.board[(3,i)] == 'x':
-                if self.board[(4,i)] == 'x':
-                    if self.board[(5,i)] == 'x':
-                        if self.board[(6, i)] == 'x':
-                            #print("Player 1 won! HORIZONTAL")
-                            Win  = True
-                            return 1 
-            if self.board[(4,i)] == 'x':
-                if self.board[(5, i)] == 'x':
-                    if self.board[(6,i)] == 'x':
-                        if self.board[(7, i)] == 'x':
-                            #print("Player 1 won! HORIZONTAL")
-                            Win  = True
-                            return 1
-            #for player 2 
-            if self.board[(1, i)] == 'o':
-                if self.board[(2,i)] == 'o':
-                    if self.board[(3,i)] == 'o':
-                        if self.board[(4,i)] == 'o':
-                           # print("Player 2 won! HORIZONTAL")
-                            Win  = True
-                            return -1
-            if self.board[(2,i)] == 'o':
-                if self.board[(3,i)] == 'o':
-                    if self.board[(4,i)] == 'o':
-                        if self.board[(5, i)] == 'o':
-                            #print("Player 2 won! HORIZONTAL")
-                            Win  = True
-                            return -1
-            if self.board[(3,i)] == 'o':
-                if self.board[(4,i)] == 'o':
-                    if self.board[(5,i)] == 'o':
-                        if self.board[(6, i)] == 'o':
-                            #print("Player 2 won! HORIZONTAL")
-                            Win  = True
-                            return -1  
-            if self.board[(4,i)] == 'o':
-                if self.board[(5, i)] == 'o':
-                    if self.board[(6,i)] == 'o':
-                        if self.board[(7, i)] == 'o':
-                            #print("Player 2 won! HORIZONTAL")
-                            Win  = True
-                            return  -1
-
-        # Next check for a vertical win 
-        for placer in columns: 
-            #player 1
-            if self.board[(placer, 1)] == 'x':
-                if self.board[(placer, 2)] =='x':
-                    if self.board[(placer, 3)] =='x': 
-                        if self.board[(placer, 4)] =='x':
-                           # print("Player 1 won! VERTICAL")
-                            Win  = True
-                            return 1 
-            if self.board[(placer, 2)] == 'x':
-                if self.board[(placer, 3)] =='x':
-                    if self.board[(placer, 4)] =='x': 
-                        if self.board[(placer, 5)] =='x':
-                            #print("Player 1 won! VERTICAL")
-                            Win  = True
-                            return 1
-            if self.board[(placer, 3)] == 'x':
-                if self.board[(placer, 4)] =='x':
-                    if self.board[(placer, 5)] =='x': 
-                        if self.board[(placer, 6)] =='x':
-                            #print("Player 1 won! VERTICAL")
-                            Win  = True
-                            return 1 
-            #player 2 
-            if self.board[(placer, 1)] == 'o':
-                if self.board[(placer, 2)] =='o':
-                    if self.board[(placer, 3)] =='o': 
-                        if self.board[(placer, 4)] =='o':
-                            #print("Player 2 won! VERTICAL")
-                            Win  = True
-                            return -1
-            if self.board[(placer, 2)] == 'o':
-                if self.board[(placer, 3)] =='o':
-                    if self.board[(placer, 4)] =='o': 
-                        if self.board[(placer, 5)] =='o':
-                            #print("Player 2 won! VERTICAL")
-                            Win  = True
-                            return -1
-            if self.board[(placer, 3)] == 'o':
-                if self.board[(placer, 4)] =='o':
-                    if self.board[(placer, 5)] =='o': 
-                        if self.board[(placer, 6)] =='o':
-                            #print("Player 2 won! VERTICAL")
-                            Win  = True
-                            return -1
-        #Last, check for diagonal wins   
-        for y in rangerows: 
-            for x in rangecolumns:
-            #player 1 
-                #check up and right 
-                if y <=3 and x<= 4:
-                    if self.board[(x,y)] == 'x':
-                        if self.board[(x+1,y+1)] == 'x':
-                            if self.board[(x+2,y+2)] == 'x':
-                                if self.board[(x+3,y+3)] == 'x':
-                                    #print("Player 1 won! UP and RIGHT")
-                                    Win  = True
-                                    return 1
-                #check up and left
-                if y <=3 and x>= 4:
-                    if self.board[(x,y)] == 'x':
-                        if self.board[(x-1,y+1)] == 'x':
-                            if self.board[(x-2,y+2)] == 'x':
-                                if self.board[(x-3,y+3)] == 'x':
-                                    #print("Player 1 won! UP and LEFT")
-                                    Win  = True
-                                    return 1
-                #check down and left
-                if y >=4 and x>= 4:
-                    if self.board[(x,y)] == 'x':
-                        if self.board[(x-1,y-1)] == 'x':
-                            if self.board[(x-2,y-2)] == 'x':
-                                if self.board[(x-3,y-3)] == 'x':
-                                    #print("Player 1 won! DOWN and LEFT")
-                                    Win  = True
-                                    return 1
-                #check down and right
-                if y >=4 and x<= 4:
-                    if self.board[(x,y)] == 'x':
-                        if self.board[(x+1,y-1)] == 'x':
-                            if self.board[(x+2,y-2)] == 'x':
-                                if self.board[(x+3,y-3)] == 'x':
-                                    #print("Player 1 won! DOWN and RIGHT")
-                                    Win  = True
-                                    return 1
-            #player 2 
-                #check up and right 
-                if y <=3 and x<= 4:
-                    if self.board[(x,y)] == 'o':
-                        if self.board[(x+1,y+1)] == 'o':
-                            if self.board[(x+2,y+2)] == 'o':
-                                if self.board[(x+3,y+3)] == 'o':
-                                    #print("Player 2 won! UP and RIGHT!")
-                                    Win  = True
-                                    return -1
-                #check up and left
-                if y <=3 and x>= 4:
-                    if self.board[(x,y)] == 'o':
-                        if self.board[(x-1,y+1)] == 'o':
-                            if self.board[(x-2,y+2)] == 'o':
-                                if self.board[(x-3,y+3)] == 'o':
-                                    #print("Player 2 won! UP and LEFT")
-                                    Win  = True
-                                    return -1
-                #check down and left
-                if y >=4 and x>= 4:
-                    if self.board[(x,y)] == 'o':
-                        if self.board[(x-1,y-1)] == 'o':
-                            if self.board[(x-2,y-2)] == 'o':
-                                if self.board[(x-3,y-3)] == 'o':
-                                    #print("Player 2 won! DOWN and LEFT")
-                                    Win  = True
-                                    return -1
-                #check down and right
-                if y >=4 and x<= 4:
-                    if self.board[(x,y)] == 'o':
-                        if self.board[(x+1,y-1)] == 'o':
-                            if self.board[(x+2,y-2)] == 'o':
-                                if self.board[(x+3,y-3)] == 'o':
-                                    #print("Player 2 won! DOWN and RIGHT")
-                                    Win  = True
-                                    return -1
-        if Win  != True:
-            return 0    
 
     #This board returns a list of winning moves for the current game state
     def giveWinningMoves(self, x,y, marker):
@@ -707,6 +361,8 @@ if __name__ == '__main__':
     for i in range(43):
         chooser = random.randrange(1,8)
         myBoard.placeMove(chooser)
+        myBoard.checkWins()
+        myBoard.switchTurns()
         myBoard.showBoard()
         time.sleep(0.5)
     print(myBoard.history)
