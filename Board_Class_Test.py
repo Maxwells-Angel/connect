@@ -10,6 +10,7 @@ class Board:
         self.rangecolumns = range(1,8)
         self.horizontalDivider = '___'*7
         self.history = []
+        self.noWin = True
         
         for i in self.rangecolumns:
             for k in self.rangerows: 
@@ -20,6 +21,12 @@ class Board:
         for i in self.rangecolumns:
             for k in self.rangerows: 
                 self.board.setdefault((i,k),' ')
+    
+    def checkTurn(self):
+        if self.switch == 1:
+            return "Player 1", "x", 1
+        elif self.switch == -1:
+            return "Player 2", "o", -1
     
     def record(self, move):
         player,marker = self.checkTurn()[0],self.checkTurn()[1]
@@ -47,12 +54,6 @@ class Board:
         print("_"+ self.horizontalDivider)
         print("The last move was ", self.history[-1][2], "by", self.history[-1][0],",",self.history[-1][1])     
 
-    def checkTurn(self):
-        if self.switch == 1:
-            return "Player 1", "x", 1
-        elif self.switch == -1:
-            return "Player 2", "o", -1
-
     # Returns a list of all legal moves, in column order
     def show_legal_moves(self):
         legalMoves = [] 
@@ -73,7 +74,7 @@ class Board:
     
     # places move on the board if the move is legal 
     # returns false otherwise
-    def placeMove(self, column):
+    def placeMove(self, column, prnt = False):
         legal = False
         move = ()
 
@@ -88,22 +89,20 @@ class Board:
             self.record(move)
 
         else:
-            print("Column:",column," was specified. This move is not legal!")
+            if prnt:
+                print("Column:",column," was specified. This move is not legal!")
             return False
 
-    # should return false if the game has been won 
-    # should tell you who won
+    
     def checkWins(self):
-        
+        # turns noWins false if the game has been won 
+        # should tell you who won
         # look at the history, what was the last move played 
         last = self.history[-1][2]
         last_column,last_row = last[0],last[1]
         
         # who played the last move 
         marker = self.history[-1][1]
-
-        # assume there is no win so far
-        noWin = True
 
         # check for a horizontal win
         h_connect = 0
@@ -112,31 +111,46 @@ class Board:
                     h_connect+=1
             else: 
                     h_connect = 0
-
-        if h_connect>=4:
-            noWin = False
+            
+            if h_connect>=4:
+                self.noWin = False
 
         v_connect = 0
         for j in self.rangerows:
+
             if self.board[(last_column,j)]== marker:
                     v_connect+=1
             else: 
                     v_connect = 0
-
-        if v_connect>=4:
-            noWin = False
+            
+            if v_connect>=4:
+                self.noWin = False
 
         # check for a diagonal win
+        d_connect = 0
+        if last_column <=4:
+            if last_row <4:
+                #check up and right
+                pass
+            elif last_row >4:
+                #check down and right
+                pass
+        elif last_column >=4:
+            if last_row <4:
+                pass
+                #check up and left
+            elif last_row >4:
+                pass
+                #check down and left
         
         # do something if you detect a win
-        if noWin == False:
+        if self.noWin == False:
             winner = self.history[-1][0]
             print("\n")
             print(winner," won, Game over!")
             print("\n")
             time.sleep(4)
             
-
     #This board returns a list of winning moves for the current game state
     def giveWinningMoves(self, x,y, marker):
         wins =[]
@@ -358,12 +372,19 @@ if __name__ == '__main__':
     #Initialize Board
     myBoard = Board()
 
-    for i in range(43):
+    for i in range(30):
+        
         chooser = random.randrange(1,8)
         myBoard.placeMove(chooser)
-        myBoard.checkWins()
-        myBoard.switchTurns()
         myBoard.showBoard()
-        time.sleep(0.5)
+        
+        myBoard.checkWins()
+
+        if myBoard.noWin == True: 
+            myBoard.switchTurns()
+            time.sleep(0.6)
+        else: 
+            break
+    
     print(myBoard.history)
     print("complete")
