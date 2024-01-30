@@ -5,41 +5,56 @@ class Board:
     '''This is a class for a connect 4 board'''
     def __init__(self):
         self.board = {}
-    switch = 1
-    rangerows = range(1,7)
-    rangecolumns = range(1,8)
-
-    #Creates the board 
-    def makeBoard(self):
-        pass
-        rangerows = range(1,7)
-        rangecolumns = range(1,8)
-        for i in rangecolumns:
-            for k in rangerows: 
+        self.switch = 1
+        self.rangerows = range(1,7)
+        self.rangecolumns = range(1,8)
+        self.horizontalDivider = '___'*7
+        self.history = []
+        
+        for i in self.rangecolumns:
+            for k in self.rangerows: 
                 self.board.setdefault((i,k),' ')
+
+    # Creates the board 
+    def clearBoard(self):
+        for i in self.rangecolumns:
+            for k in self.rangerows: 
+                self.board.setdefault((i,k),' ')
+    
+    def record(self, move):
+        player,marker = self.checkTurn()[0],self.checkTurn()[1]
+        self.history.append((player,marker, move))
+
+    def switchTurns(self):
+        self.switch = self.switch*-1
 
     # Shows the board 
     def showBoard(self):
-        pass
-        horizontalDivider = '___'*7
-        print('''--------------------------------------CONNECT FOUR----------------------------------------''')
+        print("\n")
+        print('''--------------------------------------CONNECT FOUR-----------------------------------------''')
+        print("\n")
         print('| '+self.board[(1, 6)]+'| '+self.board[(2,6)]+'| '+self.board[(3,6)]+'| '+self.board[(4,6)]+'| '+self.board[(5, 6)]+'| '+self.board[(6,6)]+'| '+ self.board[(7,6)]+'|')  
-        print("_"+ horizontalDivider)
+        print("_"+ self.horizontalDivider)
         print('| '+self.board[(1,5)]+'| '+self.board[(2,5)]+'| '+self.board[(3,5)]+'| '+self.board[(4,5)]+'| '+self.board[(5, 5)]+'| '+self.board[(6,5)]+'| '+ self.board[(7,5)]+'|')     
-        print("_"+ horizontalDivider)
+        print("_"+ self.horizontalDivider)
         print('| '+self.board[(1,4)]+'| '+self.board[(2,4)]+'| '+self.board[(3,4)]+'| '+self.board[(4,4)]+'| '+self.board[(5, 4)]+'| '+self.board[(6,4)]+'| '+ self.board[(7,4)]+'|')
-        print("_"+ horizontalDivider)
+        print("_"+ self.horizontalDivider)
         print('| '+self.board[(1,3)]+'| '+self.board[(2,3)]+'| '+self.board[(3,3)]+'| '+self.board[(4,3)]+'| '+self.board[(5, 3)]+'| '+self.board[(6,3)]+'| '+ self.board[(7,3)]+'|')
-        print("_"+ horizontalDivider)
+        print("_"+ self.horizontalDivider)
         print('| '+self.board[(1,2)]+'| '+self.board[(2,2)]+'| '+self.board[(3,2)]+'| '+self.board[(4,2)]+'| '+self.board[(5, 2)]+'| '+self.board[(6,2)]+'| '+ self.board[(7,2)]+'|')
-        print("_"+ horizontalDivider)
+        print("_"+ self.horizontalDivider)
         print('| '+self.board[(1,1)]+'| '+self.board[(2,1)]+'| '+self.board[(3,1)]+'| '+self.board[(4,1)]+'| '+self.board[(5, 1)]+'| '+self.board[(6,1)]+'| '+ self.board[(7,1)]+'|')
-        print("_"+ horizontalDivider)
-        print('''--------------------------------------CONNECT FOUR----------------------------------------''')
+        print("_"+ self.horizontalDivider)
+        print("The last move was ", self.history[-1][2], "by", self.history[-1][0],",",self.history[-1][1])     
+
+    def checkTurn(self):
+        if self.switch == 1:
+            return "Player 1", "x", 1
+        elif self.switch == -1:
+            return "Player 2", "o", -1
 
     # Returns all legal moves 
-    def legalMove(self):
-        pass 
+    def show_legal_moves(self):
         legalMoves = [] 
         for i in self.rangecolumns:
             if self.board[(i, 1)] == ' ':
@@ -56,6 +71,29 @@ class Board:
                 legalMoves.append((i,6))
         return legalMoves 
     
+    # places move on the board if the move is legal 
+    # returns false otherwise
+    def placeMove(self, column):
+        legal = False
+        move = ()
+
+        current_legal_moves = self.show_legal_moves()
+        for moves in current_legal_moves: 
+            if column == moves[0]:
+                move = moves
+                legal = True
+
+        if legal:
+            self.board[move] = self.checkTurn()[1]
+            self.record(move)
+            
+            # switch turns
+            self.switchTurns()
+
+        else:
+            print("Column:",column," was specified. This move is not legal!")
+            return False
+
     #Returns false if the game has been won 
     def noWins(self):
         noWin = True
@@ -445,25 +483,8 @@ class Board:
         if Win  != True:
             return 0    
 
-    def clearBoard(self):
-        pass
-        rangerows = range(1,7)
-        rangecolumns = range(1,8)
-        for i in rangecolumns:
-            for k in rangerows: 
-                self.board[(i,k)] = " "
-    
-    def alignBoard(self, newBoard):
-        pass 
-        rangerows = range(1,7)
-        rangecolumns = range(1,8)
-        for i in rangecolumns:
-            for k in rangerows: 
-                self.board[(i,k)] = newBoard.board[(i,k)]
-    
     #This board returns a list of winning moves for the current game state
     def giveWinningMoves(self, x,y, marker):
-        pass
         wins =[]
         #Checks all possible wins for (x,y) 
         #check right
@@ -677,37 +698,16 @@ class Board:
             return None 
         else:
             return wins
-
-    #places move
-    def placeMove(self, move):
-        pass
-        if self.switch == 1: 
-            self.board[move] ='x'
-        elif self.switch == -1:
-            self.board[move] ='o'
-
-    
+   
 if __name__ == '__main__': 
+    
     #Initialize Board
-    theBoard = Board()
-    theBoard.makeBoard()
-    theBoard.showBoard()
-    gameOn = True
-    counter = 0
+    myBoard = Board()
 
-    while gameOn == True: 
+    for i in range(43):
         chooser = random.randrange(1,8)
-        theBoard.placeMove(chooser)
-        theBoard.switch = theBoard.switch*-1
-        theBoard.showBoard()
-        rangerows = range(1,7)
-        rangecolumns = range(1,8)
-        gameOn = theBoard.noWins()
-        time.sleep(0.2)
-        counter+=1
-        if counter >= 42: 
-            print("I'm broken")
-            theBoard.clearBoard()
-            break 
-
+        myBoard.placeMove(chooser)
+        myBoard.showBoard()
+        time.sleep(0.5)
+    print(myBoard.history)
     print("complete")
