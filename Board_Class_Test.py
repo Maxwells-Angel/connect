@@ -10,8 +10,11 @@ class Board:
         self.rangecolumns = range(1,8)
         self.horizontalDivider = '___'*7
         self.history = []
+        self.choices = []
         self.noWin = True
         self.turns = 0
+        self.winType = ""
+        self.draw = False
         
         for i in self.rangecolumns:
             for k in self.rangerows: 
@@ -32,6 +35,7 @@ class Board:
     def record(self, move):
         player,marker = self.checkTurn()[0],self.checkTurn()[1]
         self.history.append((player,marker, move))
+        self.choices.append(move[0])
 
     def switchTurns(self):
         self.switch = self.switch*-1
@@ -54,6 +58,7 @@ class Board:
         print("_"+ self.horizontalDivider)
         print('| '+self.board[(1,1)]+'| '+self.board[(2,1)]+'| '+self.board[(3,1)]+'| '+self.board[(4,1)]+'| '+self.board[(5, 1)]+'| '+self.board[(6,1)]+'| '+ self.board[(7,1)]+'|')
         print("_"+ self.horizontalDivider)
+        print("TURN: ", self.turns)
         print("The last move was ", self.history[-1][2], "by", self.history[-1][0],",",self.history[-1][1])     
 
     # Returns a list of all legal moves, in column order
@@ -114,6 +119,7 @@ class Board:
             
             if h_connect>=4:
                 self.noWin = False
+                self.winType = "Horizontal"
 
         v_connect = 0
         for j in self.rangerows:
@@ -125,11 +131,11 @@ class Board:
             
             if v_connect>=4:
                 self.noWin = False
+                self.winType = "Vertical"
 
         # check for a diagonal win
-            
         for i in self.rangecolumns: 
-            for j in self.rangerows: 
+            for j in self.rangerows:
                 if i <=4:
                     if j<=3:
                         # check positive diagonal
@@ -139,31 +145,33 @@ class Board:
                                 d_connect+=1
                             else:
                                 d_connect = 0
-                            
                             if d_connect>=4:
                                 self.noWin = False
+                                self.winType = "Positive Diagonal"
+                    elif i<=4:
+                        if j>3:
+                            # check negative diagonal
+                            d_connect = 0
+                            for step in range(0,4):
+                                if self.board[(i+step,j-step)] == marker:
+                                    d_connect+=1
+                                else:
+                                    d_connect = 0
 
-                elif i<=4:
-                    if j>3:
-                        # check negative diagonal
-                        d_connect = 0
-                        for step in range(0,4):
-                            if self.board[(i-step,j-step)] == marker:
-                                d_connect+=1
-                            else:
-                                d_connect = 0
-
-                            if d_connect>=4:
-                                self.noWin = False
+                                if d_connect>=4:
+                                    self.noWin = False
+                                    self.winType = "Negative Diagonal"
         
         # do something if you detect a win
         if self.noWin == False:
             winner = self.history[-1][0]
-            print("\n")
-            print(winner," won, Game over!")
-            print("\n")
-            time.sleep(4)
-            
+            print(winner," won. Game over!")
+            print("Win type was: ", self.winType)
+    
+    def checkDraw(self): 
+        if self.turns >=42:
+            self.draw = True
+
     #This board returns a list of winning moves for the current game state
     def giveWinningMoves(self, x,y, marker):
         wins =[]
@@ -385,20 +393,23 @@ if __name__ == '__main__':
     #Initialize Board
     myBoard = Board()
     choices = [4,7,3,7,4,7,5,5,5,6,6,6,6]
+    missD = [4, 7, 5, 6, 7, 6, 7, 7, 2, 2, 5, 5, 6, 4, 6, 3, 1, 1, 1, 5, 6, 6, 7, 4, 3, 4, 4, 2, 2, 5, 7, 5]
 
-    for i in range(50):
+    for i in range(len(missD)):
         
         chooser = random.randrange(1,8)
-        myBoard.placeMove(chooser)
-        #myBoard.placeMove(choices[i])
+        #myBoard.placeMove(chooser)
+        myBoard.placeMove(missD[i])
         myBoard.showBoard()
         myBoard.checkWins()
 
-        if myBoard.noWin == True: 
-            myBoard.switchTurns()
-            time.sleep(0.3)
+        if myBoard.noWin == True:
+            myBoard.checkDraw()
+            if myBoard.draw == False:  
+                myBoard.switchTurns()
+                time.sleep(0.5)
         else: 
             break
 
     #print(myBoard.history)
-    print("complete")
+    print(myBoard.choices)
