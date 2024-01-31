@@ -186,14 +186,16 @@ class Opponent():
     def __init__(self):
         self.choice = 4
         pass
-
-    def calcProb(self, board):
-        legal_moves = board.show_legal_moves()
-        pass
     
-    def chooseMove(self):
+    def updateInternals(self):
+        #update representation of board with newest changes
+        pass
+
+    def chooseMove(self, board):
+        # calculate the best move and return that choice 
+        legal_moves = board.show_legal_moves()
         return self.choice
-        
+    
    
 if __name__ == '__main__': 
     
