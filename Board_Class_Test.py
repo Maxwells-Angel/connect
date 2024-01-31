@@ -11,6 +11,7 @@ class Board:
         self.horizontalDivider = '___'*7
         self.history = []
         self.choices = []
+        self.winner = ""
         self.noWin = True
         self.turns = 0
         self.winType = ""
@@ -63,8 +64,8 @@ class Board:
             print("TURN: ", self.turns)
             print("The last move was ", self.history[-1][2], "by", self.history[-1][0],",",self.history[-1][1])     
 
-    # Returns a list of all legal moves, in column order
     def show_legal_moves(self):
+        # Returns a list of all legal moves, in column order
         legalMoves = [] 
         for i in self.rangecolumns:
             if self.board[(i, 1)] == ' ':
@@ -81,9 +82,9 @@ class Board:
                 legalMoves.append((i,6))
         return legalMoves 
     
-    # places move on the board if the move is legal and returns True once placed
-    # returns false otherwise
     def placeMove(self, column, prnt = False):
+        # THIS function places move on the board if the move is legal and returns True once placed
+        # returns False otherwise
         legal = False
         move = ()
         
@@ -177,9 +178,7 @@ class Board:
         
         # do something if you detect a win
         if self.noWin == False:
-            winner = self.history[-1][0]
-            print(winner," won. Game over!")
-            print("Win type was: ", self.winType)
+            self.winner = self.history[-1][0]
     
     def checkDraw(self): 
         if self.turns >=42:
@@ -208,7 +207,8 @@ if __name__ == '__main__':
 
         while validMove == False:
             if myBoard.switch == player_turn: 
-                chooser = input("choose a column")
+                #chooser = input("choose a column")
+                chooser = random.randrange(1,8) 
             else: 
                 # random choice from AI
                 chooser = random.randrange(1,8) 
@@ -221,11 +221,19 @@ if __name__ == '__main__':
             myBoard.checkDraw()
             if myBoard.draw == False:  
                 myBoard.switchTurns()
-                time.sleep(0.5)
+                #time.sleep(0.1)
             else: 
                 gameOn = False
         else: 
             gameOn = False
+    
+    if gameOn == False: 
+        # Need to discriminate between winning and drawing
+        if myBoard.draw == False:
+            print(myBoard.winner," won. Game over!")
+            print("Win type was: ", myBoard.winType)
+        else: 
+            print("The game ended in a DRAW!")
 
     #print(myBoard.history)
     print(myBoard.choices)
