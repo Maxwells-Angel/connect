@@ -58,8 +58,10 @@ class Board:
         print("_"+ self.horizontalDivider)
         print('| '+self.board[(1,1)]+'| '+self.board[(2,1)]+'| '+self.board[(3,1)]+'| '+self.board[(4,1)]+'| '+self.board[(5, 1)]+'| '+self.board[(6,1)]+'| '+ self.board[(7,1)]+'|')
         print("_"+ self.horizontalDivider)
-        print("TURN: ", self.turns)
-        print("The last move was ", self.history[-1][2], "by", self.history[-1][0],",",self.history[-1][1])     
+        
+        if self.turns > 0:
+            print("TURN: ", self.turns)
+            print("The last move was ", self.history[-1][2], "by", self.history[-1][0],",",self.history[-1][1])     
 
     # Returns a list of all legal moves, in column order
     def show_legal_moves(self):
@@ -85,6 +87,9 @@ class Board:
         legal = False
         move = ()
         
+        if type(column) == str:
+            column = column.strip()
+
         try: 
             column = int(column)
             if column < 1 or column >7:
@@ -401,21 +406,30 @@ if __name__ == '__main__':
     #Initialize Board
     gameOn = True
     myBoard = Board()
-    choices = [4,7,3,7,4,7,5,5,5,6,6,6,6]
-    missD = [4, 7, 5, 6, 7, 6, 7, 7, 2, 2, 5, 5, 6, 4, 6, 3, 1, 1, 1, 5, 6, 6, 7, 4, 3, 4, 4, 2, 2, 5, 7, 5]
+    myBoard.showBoard()
     
+    # RANDOMIZE PLAYER TO BE X OR O 
+    order = random.randrange(101)
+    if order%2 == 0: 
+        player_turn = 1
+    else: 
+        player_turn = -1
+
+    # WELCOME MESSAGE 
+    print("HI, LET'S PLAY CONNECT FOUR!")
+    
+    # BEGIN GAMEPLAY 
     while gameOn:
         validMove = False 
 
         while validMove == False:
-            if myBoard.switch == 1: 
+            if myBoard.switch == player_turn: 
                 chooser = input("choose a column")
             else: 
                 # random choice from AI
                 chooser = random.randrange(1,8) 
             validMove = myBoard.placeMove(chooser)
 
-        #myBoard.placeMove(missD[i])
         myBoard.showBoard()
         myBoard.checkWins()
 
