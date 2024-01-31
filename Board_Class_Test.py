@@ -81,7 +81,7 @@ class Board:
         return legalMoves 
     
     def placeMove(self, column, prnt = False):
-        # THIS function places move on the board if the move is legal and returns True once placed
+        # THIS function places a move on the board if the move is legal and returns True once placed
         # returns False otherwise
         legal = False
         move = ()
@@ -182,28 +182,44 @@ class Board:
         if self.turns >=42:
             self.draw = True
 
-class Opponent():
+class Opponent(): 
     def __init__(self):
-        self.choice = 4
-        pass
+        self.player = ["x","o"]
+        self.choice = 0
+        self.challenge = [1,2,3,4]
+        self.internalBoard = Board()
     
-    def updateInternals(self):
-        #update representation of board with newest changes
-        pass
+    def sync(self, board):
+        #update representation of the board with newest changes
+        self.internalBoard.board = board.board
+        self.internalBoard.switch = board.switch 
+        self.internalBoard.history = board.history
 
-    def chooseMove(self, board):
+    def choose(self, board):
         # calculate the best move and return that choice 
+        
+        # level 1 - choose randomly 
         legal_moves = board.show_legal_moves()
-        return self.choice
+        self.choice = random.randrange(len(legal_moves))
+        return legal_moves[self.choice][1]
+        
+        # level 2 - try to win 
+        # make a winning move when you see the opportunity 
+
+        # level 3 - block 
+        # block your opponent's potentially winning move 
     
-   
+        # level 4 - foresight
+        # don't make a move that will lead to a forced loss, unless you have no other option
+     
 if __name__ == '__main__': 
     
-    #Initialize Board
+    # Initialize Board and Opponent
     gameOn = True
     myBoard = Board()
     myBoard.showBoard()
-    
+    myOpp = Opponent()
+
     # RANDOMIZE PLAYER TO BE X OR O 
     order = random.randrange(101)
     if order%2 == 0: 
@@ -213,18 +229,19 @@ if __name__ == '__main__':
 
     # WELCOME MESSAGE 
     print("HI, LET'S PLAY CONNECT FOUR!")
-    
+
     # BEGIN GAMEPLAY 
     while gameOn:
         validMove = False 
-
         while validMove == False:
             if myBoard.switch == player_turn: 
-                #chooser = input("choose a column")
-                chooser = random.randrange(1,8) 
+                chooser = input("choose a column")
+                #chooser = random.randrange(1,8) 
             else: 
                 # random choice from AI
-                chooser = random.randrange(1,8) 
+                chooser = myOpp.choose(myBoard)
+                myOpp.sync(myBoard)
+
             validMove = myBoard.placeMove(chooser)
 
         myBoard.showBoard()
@@ -234,7 +251,7 @@ if __name__ == '__main__':
             myBoard.checkDraw()
             if myBoard.draw == False:  
                 myBoard.switchTurns()
-                #time.sleep(0.1)
+                time.sleep(0.5)
             else: 
                 gameOn = False
         else: 
