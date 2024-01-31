@@ -21,7 +21,6 @@ class Board:
             for k in self.rangerows: 
                 self.board.setdefault((i,k),' ')
 
-    # Creates the board 
     def clearBoard(self):
         for i in self.rangecolumns:
             for k in self.rangerows: 
@@ -42,7 +41,6 @@ class Board:
         self.switch = self.switch*-1
         self.turns+=1 
 
-    # Shows the board 
     def showBoard(self):
         print("\n")
         print('''--------------------------------------CONNECT FOUR-----------------------------------------''')
@@ -183,6 +181,19 @@ class Board:
     def checkDraw(self): 
         if self.turns >=42:
             self.draw = True
+
+class Opponent():
+    def __init__(self):
+        self.choice = 4
+        pass
+
+    def calcProb(self, board):
+        legal_moves = board.show_legal_moves()
+        pass
+    
+    def chooseMove(self):
+        return self.choice
+        
    
 if __name__ == '__main__': 
     
