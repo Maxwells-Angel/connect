@@ -79,11 +79,18 @@ class Board:
                 legalMoves.append((i,6))
         return legalMoves 
     
-    # places move on the board if the move is legal 
+    # places move on the board if the move is legal and returns True once placed
     # returns false otherwise
     def placeMove(self, column, prnt = False):
         legal = False
         move = ()
+        
+        try: 
+            column = int(column)
+            if column < 1 or column >7:
+                return False
+        except: 
+            return False
 
         current_legal_moves = self.show_legal_moves()
         for moves in current_legal_moves: 
@@ -94,6 +101,7 @@ class Board:
         if legal:
             self.board[move] = self.checkTurn()[1]
             self.record(move)
+            return True
 
         else:
             if prnt:
@@ -391,15 +399,23 @@ class Board:
 if __name__ == '__main__': 
     
     #Initialize Board
+    gameOn = True
     myBoard = Board()
     choices = [4,7,3,7,4,7,5,5,5,6,6,6,6]
     missD = [4, 7, 5, 6, 7, 6, 7, 7, 2, 2, 5, 5, 6, 4, 6, 3, 1, 1, 1, 5, 6, 6, 7, 4, 3, 4, 4, 2, 2, 5, 7, 5]
+    
+    while gameOn:
+        validMove = False 
 
-    for i in range(len(missD)):
-        
-        chooser = random.randrange(1,8)
-        #myBoard.placeMove(chooser)
-        myBoard.placeMove(missD[i])
+        while validMove == False:
+            if myBoard.switch == 1: 
+                chooser = input("choose a column")
+            else: 
+                # random choice from AI
+                chooser = random.randrange(1,8) 
+            validMove = myBoard.placeMove(chooser)
+
+        #myBoard.placeMove(missD[i])
         myBoard.showBoard()
         myBoard.checkWins()
 
@@ -408,8 +424,10 @@ if __name__ == '__main__':
             if myBoard.draw == False:  
                 myBoard.switchTurns()
                 time.sleep(0.5)
+            else: 
+                gameOn = False
         else: 
-            break
+            gameOn = False
 
     #print(myBoard.history)
     print(myBoard.choices)
