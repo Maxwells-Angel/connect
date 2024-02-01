@@ -2,7 +2,7 @@ import random
 import time
 
 class Board:
-    '''This is a class for a connect 4 board'''
+    '''Connect 4 board'''
     def __init__(self):
         self.board = {}
         self.switch = 1
@@ -182,6 +182,21 @@ class Board:
         if self.turns >=42:
             self.draw = True
 
+    def returnMarker(self, marker = ' '):
+        '''returns a list of all positions with this marker
+        By default, marker is an empty space. 
+        List is ordered by number not by turn sequence'''
+
+        return_list = []
+        
+        for k in self.rangerows: 
+            for i in self.rangecolumns:
+                if self.board[(i,k)] == marker:
+                    return_list.append((i,k))
+        
+        return return_list
+
+
 class Opponent(): 
     def __init__(self):
         self.player = ["x","o"]
@@ -196,7 +211,7 @@ class Opponent():
         self.internalBoard.history = board.history
 
     def choose(self, board):
-        # calculate the best move and return that choice 
+        # calculate the best move and return an int choice in range(1,8)
         
         # level 1 - choose randomly 
         legal_moves = board.show_legal_moves()
@@ -211,10 +226,74 @@ class Opponent():
     
         # level 4 - foresight
         # don't make a move that will lead to a forced loss, unless you have no other option
-     
-if __name__ == '__main__': 
+
+class Game():
     
-    # Initialize Board and Opponent
+    def __init__(self):
+        self.on = True
+        self.board = Board()
+        self.board.showBoard()
+        self.opponent = Opponent()
+        
+        init= random.randrange(101)
+        if init%2 == 0: 
+            self.player_turn = 1
+        else: 
+            self.player_turn = -1
+        
+        # WELCOME MESSAGE 
+        print("HI, LET'S PLAY CONNECT FOUR!")
+    
+    
+    
+    def play(self):
+        myBoard = self.board
+        print(id(myBoard),id(self.board))
+        myOpp = self.opponent
+        player_turn = self.player_turn
+
+        while self.on:
+            validMove = False 
+            while validMove == False:
+                if self.board.switch == player_turn: 
+                    #chooser = input("choose a column")
+                    chooser = random.randrange(1,8) 
+                else: 
+                    # random choice from AI
+                    chooser = myOpp.choose(myBoard)
+                    myOpp.sync(myBoard)
+
+                validMove = myBoard.placeMove(chooser)
+
+            myBoard.showBoard()
+            myBoard.checkWins()
+
+            if myBoard.noWin == True:
+                myBoard.checkDraw()
+                if myBoard.draw == False:  
+                    myBoard.switchTurns()
+                    time.sleep(0.2)
+                else: 
+                    self.on = False
+            else: 
+                self.on = False
+        
+        if self.on == False: 
+            # Need to discriminate between winning and drawing
+            if myBoard.draw == False:
+                print(myBoard.winner," won. Game over!")
+                print("Win type was: ", myBoard.winType)
+            else: 
+                print("The game ended in a DRAW!")
+
+
+if __name__ == '__main__': 
+
+    game = Game()
+    game.play()
+
+    
+    '''# Initialize Board and Opponent
     gameOn = True
     myBoard = Board()
     myBoard.showBoard()
@@ -235,8 +314,8 @@ if __name__ == '__main__':
         validMove = False 
         while validMove == False:
             if myBoard.switch == player_turn: 
-                chooser = input("choose a column")
-                #chooser = random.randrange(1,8) 
+                #chooser = input("choose a column")
+                chooser = random.randrange(1,8) 
             else: 
                 # random choice from AI
                 chooser = myOpp.choose(myBoard)
@@ -251,7 +330,7 @@ if __name__ == '__main__':
             myBoard.checkDraw()
             if myBoard.draw == False:  
                 myBoard.switchTurns()
-                time.sleep(0.5)
+                time.sleep(0.2)
             else: 
                 gameOn = False
         else: 
@@ -265,5 +344,6 @@ if __name__ == '__main__':
         else: 
             print("The game ended in a DRAW!")
 
-    #print(myBoard.history)
-    print(myBoard.choices)
+    print(myBoard.returnMarker(marker = "o"))
+    print(myBoard.history)
+    print(myBoard.choices)'''
