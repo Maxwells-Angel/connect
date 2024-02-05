@@ -25,6 +25,15 @@ class Board:
         for i in self.rangecolumns:
             for k in self.rangerows: 
                 self.board.setdefault((i,k),' ')
+        
+        self.history = []
+        self.choices = []
+        self.turns = 0
+        self.noWin = True
+        self.winType = ""
+        self.draw = False
+        self.switch = 1
+
     
     def checkTurn(self):
         if self.switch == 1:
@@ -196,7 +205,6 @@ class Board:
         
         return return_list
 
-
 class Opponent(): 
     def __init__(self):
         self.player = ["x","o"]
@@ -215,8 +223,10 @@ class Opponent():
         
         # level 1 - choose randomly 
         legal_moves = board.show_legal_moves()
+        print(legal_moves)
         self.choice = random.randrange(len(legal_moves))
-        return legal_moves[self.choice][1]
+        print(legal_moves[self.choice][0])
+        return legal_moves[self.choice][0]
         
         # level 2 - try to win 
         # make a winning move when you see the opportunity 
@@ -234,34 +244,59 @@ class Game():
         self.board = Board()
         self.board.showBoard()
         self.opponent = Opponent()
+        self.mode = 1
         
         init= random.randrange(101)
         if init%2 == 0: 
             self.player_turn = 1
         else: 
             self.player_turn = -1
-        
+    
+    def chooseMode(self):
         # WELCOME MESSAGE 
         print("HI, LET'S PLAY CONNECT FOUR!")
-    
-    
-    
+        print("Are you ready to play? y/n")
+        validAnswer = False
+        while validAnswer == False:
+                mode = input("Do you want to play against yourself, play against the computer, or watch the computers play? Press 1, 2, or 3")
+                mode = mode.strip()
+                try: 
+                    mode = int(mode)
+                    validAnswer = True
+                except:
+                    validAnswer = False
+                    print("ERROR: INVALID SELECTION") 
+        
+        if mode == 1: 
+            print("manual mode activated")
+        elif mode == 2: 
+            print ("player vs. computer")
+        else: 
+            print("fully automated mode")
+
+        return mode
+
     def play(self):
+        self.mode = self.chooseMode()
         myBoard = self.board
-        print(id(myBoard),id(self.board))
         myOpp = self.opponent
         player_turn = self.player_turn
 
         while self.on:
             validMove = False 
             while validMove == False:
-                if self.board.switch == player_turn: 
-                    #chooser = input("choose a column")
-                    chooser = random.randrange(1,8) 
+
+                if self.mode == 1:
+                    chooser = input("choose a column")
+                elif self.mode == 2:
+                    if self.board.switch == player_turn: 
+                        chooser = input("choose a column")
+                    else: 
+                        myOpp.sync(myBoard)
+                        chooser = myOpp.choose(myBoard)      
                 else: 
-                    # random choice from AI
-                    chooser = myOpp.choose(myBoard)
-                    myOpp.sync(myBoard)
+                        myOpp.sync(myBoard)
+                        chooser = myOpp.choose(myBoard)
 
                 validMove = myBoard.placeMove(chooser)
 
@@ -279,71 +314,57 @@ class Game():
                 self.on = False
         
         if self.on == False: 
-            # Need to discriminate between winning and drawing
             if myBoard.draw == False:
                 print(myBoard.winner," won. Game over!")
                 print("Win type was: ", myBoard.winType)
             else: 
                 print("The game ended in a DRAW!")
+            
+            restart = input("do you want to play again? Press Y or N?") 
+            
+            restart = restart.strip()
+            restart = restart.lower()
 
-
+            if restart == "y":
+                self.restart()
+            
+    def report(self):
+        #print(self.board.returnMarker(marker = "o"))
+        print(self.board.history)
+        print(self.board.choices)
+    
+    def restart(self):
+        print("Restarting the board")
+        self.board.clearBoard()
+        self.on = True
+    
 if __name__ == '__main__': 
-
     game = Game()
     game.play()
+    game.report()
 
-    
-    '''# Initialize Board and Opponent
-    gameOn = True
-    myBoard = Board()
-    myBoard.showBoard()
-    myOpp = Opponent()
+h_wins = [
+        [(1,1),(2,1),(3,1),(4,1)],[(2,1),(3,1),(4,1),(5,1)],[(3,1),(4,1),(5,1),(6,1)],[(4,1),(5,1),(6,1),(7,1)],
+        [(1,2),(2,2),(3,2),(4,2)],[(2,2),(3,2),(4,2),(5,2)],[(3,2),(4,2),(5,2),(6,2)],[(4,2),(5,2),(6,2),(7,2)],
+        [(1,3),(2,3),(3,3),(4,3)],[(2,3),(3,3),(4,3),(5,3)],[(3,3),(4,3),(5,3),(6,3)],[(4,3),(5,3),(6,3),(7,3)],
+        [(1,4),(2,4),(3,4),(4,4)],[(2,4),(3,4),(4,4),(5,4)],[(3,4),(4,4),(5,4),(6,4)],[(4,4),(5,4),(6,4),(7,4)],
+        [(1,5),(2,5),(3,5),(4,5)],[(2,5),(3,5),(4,5),(5,5)],[(3,5),(4,5),(5,5),(6,5)],[(4,5),(5,5),(6,5),(7,5)],
+        [(1,6),(2,6),(3,6),(4,6)],[(2,6),(3,6),(4,6),(5,6)],[(3,6),(4,6),(5,6),(6,6)],[(4,6),(5,6),(6,6),(7,6)],
+]
 
-    # RANDOMIZE PLAYER TO BE X OR O 
-    order = random.randrange(101)
-    if order%2 == 0: 
-        player_turn = 1
-    else: 
-        player_turn = -1
+v_wins = [
+        [(1,1),(1,2),(1,3),(1,4)],[(2,1),(2,2),(2,3),(2,4)],[(3,1),(3,2),(3,2),(3,4)],[(4,1),(4,2),(4,3),(4,4)],
+        [(5,1),(5,2),(5,3),(5,4)],[(6,1),(6,2),(5,3),(5,4)],[(7,1),(7,2),(7,3),(7,4)],
 
-    # WELCOME MESSAGE 
-    print("HI, LET'S PLAY CONNECT FOUR!")
+        [(1,2),(1,3),(1,4),(1,5)],[(2,2),(2,3),(2,4),(2,5)],[(3,2),(3,3),(3,4),(3,5)],[(4,2),(4,2),(4,3),(4,5)],
+        [(5,2),(5,3),(5,4),(5,5)],[(6,2),(6,3),(6,4),(6,5)],[(7,2),(7,3),(7,4),(7,5)],
 
-    # BEGIN GAMEPLAY 
-    while gameOn:
-        validMove = False 
-        while validMove == False:
-            if myBoard.switch == player_turn: 
-                #chooser = input("choose a column")
-                chooser = random.randrange(1,8) 
-            else: 
-                # random choice from AI
-                chooser = myOpp.choose(myBoard)
-                myOpp.sync(myBoard)
+        [(1,3),(1,4),(1,5),(1,6)],[(2,3),(2,4),(2,5),(2,5)],[(3,3),(3,4),(3,5),(3,6)],[(4,3),(4,4),(4,5),(4,6)],
+        [(5,3),(5,4),(5,5),(5,6)],[(6,3),(5,4),(6,5),(6,4)],[(7,3),(7,4),(7,5),(7,6)],
+]
 
-            validMove = myBoard.placeMove(chooser)
+# group by y-intercept a.k.a y-x 2
+d_wins = [
+        [(1,1),(2,2),(3,3),(4,4)],[(1,2),(2,3),(3,4),(4,5)],[(1,3),(2,4),(3,5),(4,6)],[(1,4),(2,5),(3,6),(3,7)],
 
-        myBoard.showBoard()
-        myBoard.checkWins()
-
-        if myBoard.noWin == True:
-            myBoard.checkDraw()
-            if myBoard.draw == False:  
-                myBoard.switchTurns()
-                time.sleep(0.2)
-            else: 
-                gameOn = False
-        else: 
-            gameOn = False
-    
-    if gameOn == False: 
-        # Need to discriminate between winning and drawing
-        if myBoard.draw == False:
-            print(myBoard.winner," won. Game over!")
-            print("Win type was: ", myBoard.winType)
-        else: 
-            print("The game ended in a DRAW!")
-
-    print(myBoard.returnMarker(marker = "o"))
-    print(myBoard.history)
-    print(myBoard.choices)'''
+]
