@@ -222,7 +222,6 @@ class Opponent():
         
         # level 1 - choose randomly 
         legal_moves = board.show_legal_moves()
-        print(legal_moves)
         self.choice = random.randrange(len(legal_moves))
         print(legal_moves[self.choice][0])
         return legal_moves[self.choice][0]
