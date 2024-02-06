@@ -24,7 +24,7 @@ class Board:
     def clearBoard(self):
         for i in self.rangecolumns:
             for k in self.rangerows: 
-                self.board.setdefault((i,k),' ')
+                self.board[(i,k)] = ' '
         
         self.history = []
         self.choices = []
@@ -33,7 +33,6 @@ class Board:
         self.winType = ""
         self.draw = False
         self.switch = 1
-
     
     def checkTurn(self):
         if self.switch == 1:
@@ -313,20 +312,20 @@ class Game():
             else: 
                 self.on = False
         
-        if self.on == False: 
-            if myBoard.draw == False:
-                print(myBoard.winner," won. Game over!")
-                print("Win type was: ", myBoard.winType)
-            else: 
-                print("The game ended in a DRAW!")
-            
-            restart = input("do you want to play again? Press Y or N?") 
-            
-            restart = restart.strip()
-            restart = restart.lower()
+            if self.on == False: 
+                if myBoard.draw == False:
+                    print(myBoard.winner," won. Game over!")
+                    print("Win type was: ", myBoard.winType)
+                else: 
+                    print("The game ended in a DRAW!")
+                
+                restart = input("do you want to play again? Press Y or N?") 
+                
+                restart = restart.strip()
+                restart = restart.lower()
 
-            if restart == "y":
-                self.restart()
+                if restart == "y":
+                    self.restart()
             
     def report(self):
         #print(self.board.returnMarker(marker = "o"))
