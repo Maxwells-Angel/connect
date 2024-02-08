@@ -119,6 +119,15 @@ class Board:
             if prnt:
                 print("Column:",column," was specified. This move is not legal!")
             return False
+        
+    def arrangeBoard(self, *moves_list, full = False):
+        print("arranging....")
+        for m in moves_list: 
+            if full: 
+                self.placeMove(m[0])
+            else: 
+                self.placeMove(m)
+            self.switchTurns()
 
     def checkWins(self):
         # turns noWins false if the game has been won and sets winner to player 1 or 2 
@@ -185,6 +194,8 @@ class Board:
         # do something if you detect a win
         if self.noWin == False:
             self.winner = self.history[-1][0]
+
+        return self.noWin
     
     def checkDraw(self): 
         if self.turns >=42:
@@ -212,22 +223,44 @@ class Opponent():
         self.internalBoard = Board()
     
     def sync(self, board):
-        #update representation of the board with newest changes
+        # update representation of the board with newest changes
         self.internalBoard.board = board.board
         self.internalBoard.switch = board.switch 
         self.internalBoard.history = board.history
+        self.internalBoard.noWin = board.noWin
 
     def choose(self, board):
         # calculate the best move and return an int choice in range(1,8)
-        
-        # level 1 - choose randomly 
+        self.sync(board)
         legal_moves = board.show_legal_moves()
-        self.choice = random.randrange(len(legal_moves))
-        print(legal_moves[self.choice][0])
-        return legal_moves[self.choice][0]
+        print("legal moves are ",legal_moves)
         
         # level 2 - try to win 
+        # for each move in legal moves 
+        # pretend like you made the move
+        # call board.checkWins
+        # if you win, choose that move 
+        for m in legal_moves: 
+            self.internalBoard.placeMove(m[0])
+            noWinner = self.internalBoard.checkWins()
+            if noWinner == False: 
+                self.choice = m[0]
+                print('found a winner', self.choice)
+                #erase move
+                board.board[(m[0],m[1])] = " "
+                self.internalBoard.board[(m[0], m[1])] = " "
+                return self.choice
+            else: 
+                #erase move
+                board.board[(m[0],m[1])] = " "
+                self.internalBoard.board[(m[0], m[1])] = " "
+
+        # level 1 - choose randomly       
+        self.choice = legal_moves[random.randrange(len(legal_moves))]
+        print('random choice was ', self.choice)
+        return self.choice[0]
         # make a winning move when you see the opportunity 
+        # find out if there is a winning move 
 
         # level 3 - block 
         # block your opponent's potentially winning move 
@@ -236,7 +269,6 @@ class Opponent():
         # don't make a move that will lead to a forced loss, unless you have no other option
 
 class Game():
-    
     def __init__(self):
         self.on = True
         self.board = Board()
@@ -273,7 +305,7 @@ class Game():
             print("fully automated mode")
 
         return mode
-
+    
     def play(self):
         self.mode = self.chooseMode()
         myBoard = self.board
@@ -305,7 +337,7 @@ class Game():
                 myBoard.checkDraw()
                 if myBoard.draw == False:  
                     myBoard.switchTurns()
-                    time.sleep(0.2)
+                    time.sleep(0.3)
                 else: 
                     self.on = False
             else: 
@@ -327,7 +359,6 @@ class Game():
                     self.restart()
             
     def report(self):
-        #print(self.board.returnMarker(marker = "o"))
         print(self.board.history)
         print(self.board.choices)
     
@@ -341,28 +372,8 @@ if __name__ == '__main__':
     game.play()
     game.report()
 
-h_wins = [
-        [(1,1),(2,1),(3,1),(4,1)],[(2,1),(3,1),(4,1),(5,1)],[(3,1),(4,1),(5,1),(6,1)],[(4,1),(5,1),(6,1),(7,1)],
-        [(1,2),(2,2),(3,2),(4,2)],[(2,2),(3,2),(4,2),(5,2)],[(3,2),(4,2),(5,2),(6,2)],[(4,2),(5,2),(6,2),(7,2)],
-        [(1,3),(2,3),(3,3),(4,3)],[(2,3),(3,3),(4,3),(5,3)],[(3,3),(4,3),(5,3),(6,3)],[(4,3),(5,3),(6,3),(7,3)],
-        [(1,4),(2,4),(3,4),(4,4)],[(2,4),(3,4),(4,4),(5,4)],[(3,4),(4,4),(5,4),(6,4)],[(4,4),(5,4),(6,4),(7,4)],
-        [(1,5),(2,5),(3,5),(4,5)],[(2,5),(3,5),(4,5),(5,5)],[(3,5),(4,5),(5,5),(6,5)],[(4,5),(5,5),(6,5),(7,5)],
-        [(1,6),(2,6),(3,6),(4,6)],[(2,6),(3,6),(4,6),(5,6)],[(3,6),(4,6),(5,6),(6,6)],[(4,6),(5,6),(6,6),(7,6)],
-]
-
-v_wins = [
-        [(1,1),(1,2),(1,3),(1,4)],[(2,1),(2,2),(2,3),(2,4)],[(3,1),(3,2),(3,2),(3,4)],[(4,1),(4,2),(4,3),(4,4)],
-        [(5,1),(5,2),(5,3),(5,4)],[(6,1),(6,2),(5,3),(5,4)],[(7,1),(7,2),(7,3),(7,4)],
-
-        [(1,2),(1,3),(1,4),(1,5)],[(2,2),(2,3),(2,4),(2,5)],[(3,2),(3,3),(3,4),(3,5)],[(4,2),(4,2),(4,3),(4,5)],
-        [(5,2),(5,3),(5,4),(5,5)],[(6,2),(6,3),(6,4),(6,5)],[(7,2),(7,3),(7,4),(7,5)],
-
-        [(1,3),(1,4),(1,5),(1,6)],[(2,3),(2,4),(2,5),(2,5)],[(3,3),(3,4),(3,5),(3,6)],[(4,3),(4,4),(4,5),(4,6)],
-        [(5,3),(5,4),(5,5),(5,6)],[(6,3),(5,4),(6,5),(6,4)],[(7,3),(7,4),(7,5),(7,6)],
-]
-
-# group by y-intercept a.k.a y-x 2
-d_wins = [
-        [(1,1),(2,2),(3,3),(4,4)],[(1,2),(2,3),(3,4),(4,5)],[(1,3),(2,4),(3,5),(4,6)],[(1,4),(2,5),(3,6),(3,7)],
-
-]
+    # testing detect win functions 
+    #newBoard = Board()
+    #newBoard.arrangeBoard(4,5,6,7,4,3,5,2,4,4,3,2)
+    #newBoard.showBoard()
+    
