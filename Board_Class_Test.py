@@ -13,7 +13,7 @@ class Board:
         self.choices = []
         self.winner = ""
         self.noWin = True
-        self.turns = 0
+        self.turns = 1
         self.winType = ""
         self.draw = False
         
@@ -66,7 +66,7 @@ class Board:
         print('| '+self.board[(1,1)]+'| '+self.board[(2,1)]+'| '+self.board[(3,1)]+'| '+self.board[(4,1)]+'| '+self.board[(5, 1)]+'| '+self.board[(6,1)]+'| '+ self.board[(7,1)]+'|')
         print("_"+ self.horizontalDivider)
         
-        if self.turns > 0:
+        if self.turns > 1:
             print("TURN: ", self.turns)
             print("The last move was ", self.history[-1][2], "by", self.history[-1][0],",",self.history[-1][1])     
 
@@ -215,7 +215,8 @@ class Board:
         
         return return_list
 
-class Opponent(): 
+class Opponent():
+
     def __init__(self):
         self.player = ["x","o"]
         self.choice = 0
@@ -233,7 +234,7 @@ class Opponent():
         # calculate the best move and return an int choice in range(1,8)
         self.sync(board)
         legal_moves = board.show_legal_moves()
-        print("legal moves are ",legal_moves)
+        #print("legal moves are ",legal_moves)
         
         # level 2 - try to win 
         # for each move in legal moves 
@@ -292,7 +293,8 @@ class Game():
                 mode = mode.strip()
                 try: 
                     mode = int(mode)
-                    validAnswer = True
+                    if mode < 4 and mode >=1:
+                        validAnswer = True
                 except:
                     validAnswer = False
                     print("ERROR: INVALID SELECTION") 
@@ -311,16 +313,20 @@ class Game():
         myBoard = self.board
         myOpp = self.opponent
         player_turn = self.player_turn
+        validRest = False
 
         while self.on:
+            curr_marker = self.board.checkTurn()[1]
             validMove = False 
             while validMove == False:
 
                 if self.mode == 1:
-                    chooser = input("choose a column")
+                    print("you are player", curr_marker)
+                    chooser = input("choose a column 1-7 ")
                 elif self.mode == 2:
                     if self.board.switch == player_turn: 
-                        chooser = input("choose a column")
+                        print("you are player", curr_marker)
+                        chooser = input("choose a column 1-7 ")
                     else: 
                         myOpp.sync(myBoard)
                         chooser = myOpp.choose(myBoard)      
@@ -350,12 +356,17 @@ class Game():
                 else: 
                     print("The game ended in a DRAW!")
                 
-                restart = input("do you want to play again? Press Y or N?") 
-                
-                restart = restart.strip()
-                restart = restart.lower()
+                while validRest == False:
+                    restart = input("Do you want to play again? Press Y or N") 
+                    
+                    restart = restart.strip()
+                    restart = restart.lower()
+
+                    if restart == "y" or restart == "n":
+                        validRest = True
 
                 if restart == "y":
+                    validRest = False
                     self.restart()
             
     def report(self):
@@ -370,10 +381,6 @@ class Game():
 if __name__ == '__main__': 
     game = Game()
     game.play()
-    game.report()
+    #game.report()
 
-    # testing detect win functions 
-    #newBoard = Board()
-    #newBoard.arrangeBoard(4,5,6,7,4,3,5,2,4,4,3,2)
-    #newBoard.showBoard()
     
