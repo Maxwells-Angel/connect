@@ -218,9 +218,7 @@ class Board:
 class Opponent():
 
     def __init__(self):
-        self.player = ["x","o"]
         self.choice = 0
-        self.challenge = [1,2,3,4]
         self.internalBoard = Board()
     
     def sync(self, board):
@@ -261,13 +259,7 @@ class Opponent():
         print('random choice was ', self.choice)
         return self.choice[0]
         # make a winning move when you see the opportunity 
-        # find out if there is a winning move 
-
-        # level 3 - block 
-        # block your opponent's potentially winning move 
-    
-        # level 4 - foresight
-        # don't make a move that will lead to a forced loss, unless you have no other option
+        # find out if there is a winning move
 
 class Game():
     def __init__(self):
