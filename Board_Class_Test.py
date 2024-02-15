@@ -286,10 +286,9 @@ class Game():
     def chooseMode(self):
         # WELCOME MESSAGE 
         print("HI, LET'S PLAY CONNECT FOUR!")
-        print("Are you ready to play? y/n")
         validAnswer = False
         while validAnswer == False:
-                mode = input("Do you want to play against yourself, play against the computer, or watch the computers play? Press 1, 2, or 3")
+                mode = input("Press 1 to play against yourself, 2 to play against the computer, and 3 to watch the computers play against each other.")
                 mode = mode.strip()
                 try: 
                     mode = int(mode)
@@ -351,7 +350,7 @@ class Game():
         
             if self.on == False: 
                 if myBoard.draw == False:
-                    print(myBoard.winner," won. Game over!")
+                    print(myBoard.winner," won! Game over!")
                     print("Win type was: ", myBoard.winType)
                 else: 
                     print("The game ended in a DRAW!")
